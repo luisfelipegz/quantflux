@@ -27,6 +27,16 @@ import matplotlib.pyplot as plt
      of size N.
 
     i.e., flipping a coin 10 times and counting the number of heads.
+
+  Hypergeometric distribution:
+  
+    Discrete probability distribution that describes the probability of k successes in n draws
+     without replacement from a finite population of size N that contains K objects with that
+     feature, where in each draw is either a success or a failure.
+
+    Basis for the hypergeometric distribution to measure statistical significance.
+
+    i.e., drawing red marbels from an urn with red and green marbels without replacement.
     
 """
 
@@ -246,12 +256,12 @@ def binomialDists(probs: list, trials: int, exp: int, plot: bool)->Tuple[list, l
   # Start plot
   if plot:
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16,6))
-    axes[0].set_xlim(0,trials)
     axes[0].set_title(f"Binomial Distribution PMF")
+    axes[0].set_xlim(0,trials)
     axes[0].set_xlabel("X")
     axes[0].set_ylabel("P(X)")
-    axes[1].set_xlim(0,trials)
     axes[1].set_title(f"Binomial Distribution CDF")
+    axes[1].set_xlim(0,trials)
     axes[1].set_xlabel("X")
     axes[1].set_ylabel("Cumulative Sum")
   # Loop through each probability
@@ -291,9 +301,9 @@ def binomialDists(probs: list, trials: int, exp: int, plot: bool)->Tuple[list, l
     variances.append(varSim)
     skewnesses.append(skSim)
     # ----- Comparison -----
-    print(f"Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
-    print(f"Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
-    print(f"Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+    print(f" Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+    print(f" Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+    print(f" Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
     # ----- Plot -----
     if plot:
       # PMF
@@ -307,5 +317,181 @@ def binomialDists(probs: list, trials: int, exp: int, plot: bool)->Tuple[list, l
     axes[0].legend(frameon=False)
     axes[1].legend(frameon=False)
     plt.savefig("binomialDists.pdf")
+  # Return stats
+  return means, variances, skewnesses
+
+def hypergeometricDist(N: int, K: int, n: int, trials: int, plot: bool)->Tuple[float,float,float]:
+  '''
+  Hypergeometric distribution of a random variable
+  Arguments:
+    N       : population size (i.e., 100)
+    K       : number of success states in population (i.e., 50)
+    n       : number of draws in each trial
+    trials  : number of trials
+    plot    : option to plot
+  Returns:
+    meanSim : simulated mean
+    varSim  : simulated variance
+    skSim   : simulated skewness
+  '''
+  # ----- Theory -----
+  # Expected value
+  meanTh = n*K/N
+  # Variance
+  varTh = n*(K/N)*((N-K)/N)*((N-n)/(N-1))
+  # Skewness
+  skNum = (N-2*K)*(N-1)**0.5*(N-2*n)
+  skDenom = (n*K*(N-K)*(N-n))**0.5*(N-2)
+  skTh = skNum/skDenom
+  # Probabilities
+  #  Finding k successes is given by
+  #   f(k) = [(K choose k) (N-K choose n-k)] / (N choose n)
+  points = np.arange(0,K+2,1)
+  probsTh = [math.comb(K,k)*math.comb(N-K,n-k)/math.comb(N,n) for k in points[:-1]]
+  cumProbsTh = np.cumsum(probsTh)
+  cumProbsTh = np.insert(cumProbsTh,0,0)
+  # ----- Simulation -----
+  # Population vector
+  Nvec = np.concatenate((np.zeros(N-K),np.ones(K)), axis=0)
+  np.random.shuffle(Nvec)
+  idx = np.random.rand(trials,N).argpartition(n,axis=1)[:,:n]
+  nvec = np.take(Nvec, idx)
+  # Sums
+  sums = np.sum(nvec,axis=1)
+  # Stats
+  meanSim = np.mean(sums)
+  varSim = np.std(sums)**2
+  skSim = skew(sums,bias=False)
+  # ----- Comparison -----
+  print(f"Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+  print(f"Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+  print(f"Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+  # ----- Plot -----
+  if plot:
+    # PMF
+    plt.figure(figsize=(8,6))
+    plt.xlim(0,K)
+    plt.title(f"Hypergeometric Distribution PMF (N={N}, K={K}, n={n})")
+    plt.hist(sums, bins=points, density=True, histtype="step", label=f"Simulation")
+    plt.plot(probsTh, marker=".", linestyle="None", label=f"Theory")
+    plt.xlabel("X")
+    plt.ylabel("P(X)")
+    plt.legend(frameon=False)
+    plt.savefig("hypergeometricDistPMF.pdf")
+    # CMF
+    plt.figure(figsize=(8,6))
+    plt.xlim(0,K)
+    plt.title(f"Hypergeometric Distribution CDF (N={N}, K={K}, n={n})")
+    plt.hist(sums, bins=points, density=True, cumulative=True, histtype="step", label=f"Simulation")
+    plt.plot(cumProbsTh, marker=".", linestyle="None", label=f"Theory")
+    plt.xlabel("X")
+    plt.ylabel("Cumulative Sum")
+    plt.legend(frameon=False)
+    plt.savefig("hypergeometricDistCDF.pdf")
+  return meanSim, varSim, skSim
+
+def hypergeometricDistRawSim(N: int, K: int, n: int, trials: int)->np.ndarray:
+  '''
+  Hypergeometric distribution of a random variable
+  Arguments:
+    N       : population size (i.e., 100)
+    K       : number of success states in population (i.e., 50)
+    n       : number of draws in each trial
+    trials  : number of trials
+  Returns:
+    sums    : numpy array with the sum of successes in each experiment
+  '''
+  # ----- Simulation -----
+  # Population vector
+  Nvec = np.concatenate((np.zeros(N-K),np.ones(K)), axis=0)
+  np.random.shuffle(Nvec)
+  idx = np.random.rand(trials,N).argpartition(n,axis=1)[:,:n]
+  nvec = np.take(Nvec, idx)
+  # Sums
+  sums = np.sum(nvec,axis=1)
+  return sums
+
+def hypergeometricDists(N: int, Ks: list, ns: list, trials: int, plot: bool)->Tuple[list,list,list]:
+  '''
+  Hypergeometric distribution of a random variable
+  Arguments:
+    N       : population size (i.e., 100)
+    Ks      : list of number of success states in population (i.e., [50,60,70])
+    ns      : list of number of draws in each trial (i.e., [100,200,300])
+    trials  : number of trials
+    plot    : option to plot
+  Returns:
+    meanSim : simulated mean
+    varSim  : simulated variance
+    skSim   : simulated skewness
+  '''
+  # Start plot
+  if plot:
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16,6))
+    axes[0].set_title("Hypergeometric Distributions PMF")
+    axes[0].set_xlim(0,max(Ks))
+    axes[0].set_xlabel("k")
+    axes[0].set_ylabel("P(k)")
+    axes[1].set_title("Hypergeometric Distributions CDF")
+    axes[1].set_xlim(0,max(Ks))
+    axes[0].set_xlabel("k")
+    axes[0].set_ylabel("Cumulative Sum")
+  # Loop through various draw scenarios
+  means = []
+  variances = []
+  skewnesses = []
+  scenarios = zip(Ks,ns)
+  colorCounter = 0
+  for K, n in scenarios:
+    colorCounter += 1
+    print(f"Scenario: N={N}, K={K}, n={n}")
+    # ----- Theory -----
+    # Expected value
+    meanTh = n*K/N
+    # Variance
+    varTh = n*(K/N)*((N-K)/N)*((N-n)/(N-1))
+    # Skewness
+    skNum = (N-2*K)*(N-1)**0.5*(N-2*n)
+    skDenom = (n*K*(N-K)*(N-n))**0.5*(N-2)
+    skTh = skNum/skDenom
+    # Probabilities
+    #  Finding k successes is given by
+    #   f(k) = [(K choose k) (N-K choose n-k)] / (N choose n)
+    points = np.arange(0,K+2,1)
+    probsTh = [math.comb(K,k)*math.comb(N-K,n-k)/math.comb(N,n) for k in points[:-1]]
+    cumProbsTh = np.cumsum(probsTh)
+    cumProbsTh = np.insert(cumProbsTh,0,0)
+    # ----- Simulation -----
+    # Population vector
+    Nvec = np.concatenate((np.zeros(N-K),np.ones(K)), axis=0)
+    np.random.shuffle(Nvec)
+    idx = np.random.rand(trials,N).argpartition(n,axis=1)[:,:n]
+    nvec = np.take(Nvec, idx)
+    # Sums
+    sums = np.sum(nvec,axis=1)
+    # Stats
+    meanSim = np.mean(sums)
+    varSim = np.std(sums)**2
+    skSim = skew(sums,bias=False)
+    means.append(meanSim)
+    variances.append(varSim)
+    skewnesses.append(skSim)
+    # ----- Comparison -----
+    print(f" Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+    print(f" Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+    print(f" Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+    # ----- Plot -----
+    if plot:
+      # PMF
+      axes[0].hist(sums, bins=points, density=True, histtype="step", color=f"C{colorCounter}", label=f"Simulation (N={N}, K={K}, n={n})")
+      axes[0].plot(probsTh, marker=".", linestyle="None", color=f"C{colorCounter}", label=f"Theory (N={N}, K={K}, n={n})")
+      # CMF
+      axes[1].hist(sums, bins=points, density=True, cumulative=True, histtype="step", color=f"C{colorCounter}", label=f"Simulation (N={N}, K={K}, n={n})")
+      axes[1].plot(cumProbsTh, marker=".", linestyle="None", color=f"C{colorCounter}", label=f"Theory (N={N}, K={K}, n={n})")
+  # End plot
+  if plot:
+    axes[0].legend(frameon=False)
+    axes[1].legend(frameon=False)
+    plt.savefig("hypergeometricDists.pdf")
   # Return stats
   return means, variances, skewnesses
