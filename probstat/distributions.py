@@ -53,6 +53,14 @@ import matplotlib.pyplot as plt
 
   Uniform distribution:
 
+    Continuous probability distribution that describes an experiment where there is an arbitrary
+     outcome that lies between certain boundaries.
+
+    The conitnuous uniform distribution with parameters a=0 and b=1 is called the standard uniform
+     distribution
+
+    i.e., maximum entropy probability distribution for a random variable X under no constraints.
+
   Normal distribution:
     
 """
@@ -666,16 +674,161 @@ def geometricDists(ps: list, limit: int, trials: int, plot: bool)->Tuple[float,f
     axes[1].legend(frameon=False)
     plt.savefig("geometricDists.pdf")
   # Return stats
+  return means, variances, skewnesses
+
+def uniformDist(a:float, b:float, trials: int, plot:bool)->Tuple[float,float,float]:
+  '''
+  Uniform distribution of a random variable.
+  Arguments:
+    a       : lower limit (i.e., 0)
+    b       : upper limit (i.e., 1)
+    trials  : Number of trials to simulate (i.e. 10k)
+    plot    : option to plot
+  Returns:
+    meanSim : simulated mean
+    varSim  : simulated variance
+    skSim   : simulated skewness
+  '''
+  # ----- Theory -----
+  # Expected value
+  meanTh = 0.5*(b+a)
+  # Variance
+  varTh = (1/12)*(b-a)**2
+  # Skewness
+  skTh = 0
+  # Probabilities
+  #  Success probability of drawing x
+  #  f(x) = 1/(b-a)
+  width = 1e-1
+  points = np.arange(a,b+width,width)
+  probTh = 1/(b-a)
+  cumProbsTh = [(p-a)*probTh for p in points[:-1]]
+  # ----- Simulation -----
+  # Samples
+  samples = np.random.uniform(low=a, high=b, size=trials)
+  # Stats
+  meanSim = np.mean(samples)
+  varSim = np.std(samples)**2
+  skSim = skew(samples,bias=False)
+  # ----- Comparison -----
+  print(f"Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+  print(f"Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+  print(f"Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+  # ----- Plot -----
+  if plot:
+    # PMF
+    plt.figure(figsize=(8,6))
+    plt.xlim(0,b+a)
+    plt.title(f"Uniform Distribution PMF (a={a},b={b})")
+    plt.hist(samples, bins=points, density=True, histtype="step", label=f"Simulation")
+    plt.axhline(y=probTh, xmin=a/(b+a), xmax=b/(b+a), color="grey", linestyle="-", label=f"Theory")
+    plt.xlabel("x")
+    plt.ylabel("P(X=x)")
+    plt.legend(frameon=False)
+    plt.savefig("uniformDistPMF.pdf")
+    # CMF
+    plt.figure(figsize=(8,6))
+    plt.xlim(a,b)
+    plt.title(f"Uniform Distribution CDF (a={a},b={b})")
+    plt.hist(samples, bins=points, density=True, cumulative=True, histtype="step", label=f"Simulation")
+    plt.plot(points[:-1], cumProbsTh, marker=".", linestyle="None", label=f"Theory")
+    plt.xlabel("x")
+    plt.ylabel("Cumulative Sum")
+    plt.legend(frameon=False)
+    plt.savefig("uniformDistCDF.pdf")
   return meanSim, varSim, skSim
 
-def uniformDist():
-  return
+def uniformDistRawSim(a: float, b: float, trials: int)->np.ndarray:
+  '''
+  Uniform distribution of a random variable.
+  Arguments:
+    a       : lower limit (i.e., 0)
+    b       : upper limit (i.e., 1)
+    trials  : Number of trials to simulate (i.e. 10k)
+  Returns:
+    samples : numpy array with all the trials from sampling the uniform distribution
+  '''
+  # ----- Simulation -----
+  # Samples
+  samples = np.random.uniform(low=a, high=b, size=trials)
+  return samples
 
-def uniformDistRawSim():
-  return
-
-def uniformDists():
-  return
+def uniformDists(ais: float, bes: float, trials: int, plot: bool)->Tuple[list,list,list]:
+  '''
+  Uniform distribution of a random variable.
+  Arguments:
+    ais      : lower limits (i.e., 0)
+    bes      : upper limits (i.e., 1)
+    trials  : Number of trials to simulate (i.e. 10k)
+    plot    : option to plot
+  Returns:
+    meanSim : simulated mean
+    varSim  : simulated variance
+    skSim   : simulated skewness
+  '''
+  # Start plot
+  if plot:
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16,6))
+    axes[0].set_title("Uniform Distributions PMF")
+    axes[0].set_xlim(min(ais), max(bes))
+    axes[0].set_xlabel("k")
+    axes[0].set_ylabel("P(k)")
+    axes[1].set_title("Uniform Distributions CDF")
+    axes[1].set_xlim(min(ais),max(bes))
+    axes[1].set_xlabel("k")
+    axes[1].set_ylabel("Cumulative Sum")
+  # Loop through various draw scenarios
+  means = []
+  variances = []
+  skewnesses = []
+  scenarios = zip(ais,bes)
+  colorCounter = 0
+  for a,b in scenarios:
+    colorCounter += 1
+    print(f"Scenario: a={a}, b={b}")
+    # ----- Theory -----
+    # Expected value
+    meanTh = 0.5*(b+a)
+    # Variance
+    varTh = (1/12)*(b-a)**2
+    # Skewness
+    skTh = 0
+    # Probabilities
+    #  Success probability of drawing x
+    #  f(x) = 1/(b-a)
+    width = 1e-1
+    points = np.arange(a,b+width,width)
+    probTh = 1/(b-a)
+    cumProbsTh = [(p-a)*probTh for p in points[:-1]]
+    # ----- Simulation -----
+    # Samples
+    samples = np.random.uniform(low=a, high=b, size=trials)
+    # Stats
+    meanSim = np.mean(samples)
+    varSim = np.std(samples)**2
+    skSim = skew(samples,bias=False)
+    means.append(meanSim)
+    variances.append(varSim)
+    skewnesses.append(skSim)
+    # ----- Comparison -----
+    print(f"Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+    print(f"Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+    print(f"Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+    # ----- Plot -----
+    if plot:
+      # PMF
+      axes[0].hist(samples, bins=points, density=True, histtype="step", label=f"Simulation (a={a},b={b})")
+      axes[0].axhline(y=probTh, xmin=a/(b+a), xmax=b/(b+a), color="grey", linestyle="-", label=f"Theory (a={a},b={b})")
+      # CMF
+      axes[1].hist(samples, bins=points, density=True, cumulative=True, histtype="step", label=f"Simulation (a={a},b={b})")
+      axes[1].plot(points[:-1], cumProbsTh, marker=".", linestyle="None", label=f"Theory (a={a},b={b})")
+  # End plot
+  if plot:
+    axes[0].legend(frameon=False)
+    axes[1].legend(frameon=False)
+    plt.savefig("uniformDists.pdf")
+  # Return stats
+  return means, variances, skewnesses
 
 def normalDist():
   return
@@ -685,6 +838,3 @@ def normalDistRawSim():
 
 def normalDists():
   return
-
-if __name__ == "__main__":
-  geometricDists([0.25,0.5,0.7], 20, 100000, True)
