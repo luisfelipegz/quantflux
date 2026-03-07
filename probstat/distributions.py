@@ -37,6 +37,23 @@ import matplotlib.pyplot as plt
     Basis for the hypergeometric distribution to measure statistical significance.
 
     i.e., drawing red marbels from an urn with red and green marbels without replacement.
+
+  Geometric distribution:
+  
+    Discrete probability distribution of the number X of Bernoulli trials needed to get one success.
+     Another way to put it, the number Y=X-1 of failures before the first success.
+
+    Model the number of trials up to and including the first success.
+
+    The geometric distribution is the only memoryless discrete probability distribution, where the
+     number of previously failed trials does not affect the number of future trials needed for a
+     success.
+
+    i.e., probability a coin lands heads after 9 consecutive tails
+
+  Uniform distribution:
+
+  Normal distribution:
     
 """
 
@@ -434,8 +451,8 @@ def hypergeometricDists(N: int, Ks: list, ns: list, trials: int, plot: bool)->Tu
     axes[0].set_ylabel("P(k)")
     axes[1].set_title("Hypergeometric Distributions CDF")
     axes[1].set_xlim(0,max(Ks))
-    axes[0].set_xlabel("k")
-    axes[0].set_ylabel("Cumulative Sum")
+    axes[1].set_xlabel("k")
+    axes[1].set_ylabel("Cumulative Sum")
   # Loop through various draw scenarios
   means = []
   variances = []
@@ -495,3 +512,179 @@ def hypergeometricDists(N: int, Ks: list, ns: list, trials: int, plot: bool)->Tu
     plt.savefig("hypergeometricDists.pdf")
   # Return stats
   return means, variances, skewnesses
+
+def geometricDist(p: float, limit: int, trials: int, plot: bool)->Tuple[float,float,float]:
+  '''
+  Geometric distribution of a random variable.
+  Arguments:
+    p       : Success probability
+    limit   : Max number of trials to consider
+    trials  : Number of experiments to simulate (i.e. 10k)
+    plot    : option to plot
+  Returns:
+    meanSim : simulated mean
+    varSim  : simulated variance
+    skSim   : simulated skewness
+  '''
+  # ----- Theory -----
+  # Expected value
+  meanTh = 1/p
+  # Variance
+  varTh = (1-p)/p**2
+  # Skewness
+  skTh = (2-p)/np.sqrt(1-p)
+  # Probabilities
+  #  Finding first success after k trials
+  #   f(k) = p*(1-p)^(k-1)
+  points = np.arange(1,limit+2,1)
+  probsTh = [p*((1-p)**(k-1)) for k in points[:-1]]
+  cumProbsTh = np.cumsum(probsTh)
+  probsTh = np.insert(probsTh,0,0)
+  cumProbsTh = np.insert(cumProbsTh,0,0)
+  # ----- Simulation -----
+  # Samples
+  samples = np.random.geometric(p=p, size=trials)
+  # Stats
+  meanSim = np.mean(samples)
+  varSim = np.std(samples)**2
+  skSim = skew(samples,bias=False)
+  # ----- Comparison -----
+  print(f"Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+  print(f"Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+  print(f"Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+  # ----- Plot -----
+  if plot:
+    # PMF
+    plt.figure(figsize=(8,6))
+    plt.xlim(0,limit)
+    plt.title(f"Geometric Distribution PMF (p={p})")
+    plt.hist(samples, bins=points, density=True, histtype="step", label=f"Simulation")
+    plt.plot(probsTh, marker=".", linestyle="None", label=f"Theory")
+    plt.xlabel("k")
+    plt.ylabel("P(X=k)")
+    plt.legend(frameon=False)
+    plt.savefig("geometricDistPMF.pdf")
+    # CMF
+    plt.figure(figsize=(8,6))
+    plt.xlim(0,limit)
+    plt.title(f"Geometric Distribution CDF (p={p})")
+    plt.hist(samples, bins=points, density=True, cumulative=True, histtype="step", label=f"Simulation")
+    plt.plot(cumProbsTh, marker=".", linestyle="None", label=f"Theory")
+    plt.xlabel("k")
+    plt.ylabel("Cumulative Sum")
+    plt.legend(frameon=False)
+    plt.savefig("geometricDistCDF.pdf")
+  return meanSim, varSim, skSim
+
+def geometricDistRawSim(p: int, trials: int)->np.ndarray:
+  '''
+  Geometric distribution of a random variable
+  Arguments:
+    p       : Success probability
+    limit   : Max number of trials to consider
+    trials  : number of trials
+  Returns:
+    samples : numpy array with the number of trials to get the first success
+  '''
+  # ----- Simulation -----
+  # Samples
+  samples = np.random.geometric(p=p, size=trials)
+  return samples
+
+def geometricDists(ps: list, limit: int, trials: int, plot: bool)->Tuple[float,float,float]:
+  '''
+  Geometric distribution of a random variable.
+  Arguments:
+    ps      : List of success probabilities
+    limit   : Max number of trials to consider
+    trials  : Number of experiments to simulate (i.e. 10k)
+    plot    : option to plot
+  Returns:
+    meanSim : simulated means
+    varSim  : simulated variances
+    skSim   : simulated skewnesses
+  '''
+  # Start plot
+  if plot:
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16,6))
+    axes[0].set_title("Geometric Distributions PMF")
+    axes[0].set_xlim(0, limit)
+    axes[0].set_xlabel("k")
+    axes[0].set_ylabel("P(k)")
+    axes[1].set_title("Geometric Distributions CDF")
+    axes[1].set_xlim(0,limit)
+    axes[1].set_xlabel("k")
+    axes[1].set_ylabel("Cumulative Sum")
+  # Loop through various draw scenarios
+  means = []
+  variances = []
+  skewnesses = []
+  colorCounter = 0
+  for p in ps:
+    colorCounter += 1
+    print(f"Scenario: p={p}")
+    # ----- Theory -----
+    # Expected value
+    meanTh = 1/p
+    # Variance
+    varTh = (1-p)/p**2
+    # Skewness
+    skTh = (2-p)/np.sqrt(1-p)
+    # Probabilities
+    #  Finding first success after k trials
+    #   f(k) = p*(1-p)^(k-1)
+    points = np.arange(1,limit+2,1)
+    probsTh = [p*((1-p)**(k-1)) for k in points[:-1]]
+    cumProbsTh = np.cumsum(probsTh)
+    probsTh = np.insert(probsTh,0,0)
+    cumProbsTh = np.insert(cumProbsTh,0,0)
+    # ----- Simulation -----
+    # Samples
+    samples = np.random.geometric(p=p, size=trials)
+    # Stats
+    meanSim = np.mean(samples)
+    varSim = np.std(samples)**2
+    skSim = skew(samples,bias=False)
+    means.append(meanSim)
+    variances.append(varSim)
+    skewnesses.append(skSim)
+    # ----- Comparison -----
+    print(f" Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+    print(f" Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+    print(f" Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+    # ----- Plot -----
+    if plot:
+      # PMF
+      axes[0].hist(samples, bins=points, density=True, histtype="step", color=f"C{colorCounter}", label=f"Simulation (p={p})")
+      axes[0].plot(probsTh, marker=".", linestyle="None", color=f"C{colorCounter}", label=f"Theory (p={p})")
+      # CMF
+      axes[1].hist(samples, bins=points, density=True, cumulative=True, histtype="step", color=f"C{colorCounter}", label=f"Simulation (p={p})")
+      axes[1].plot(cumProbsTh, marker=".", linestyle="None", color=f"C{colorCounter}", label=f"Theory (p={p})")
+  # End plot
+  if plot:
+    axes[0].legend(frameon=False)
+    axes[1].legend(frameon=False)
+    plt.savefig("geometricDists.pdf")
+  # Return stats
+  return meanSim, varSim, skSim
+
+def uniformDist():
+  return
+
+def uniformDistRawSim():
+  return
+
+def uniformDists():
+  return
+
+def normalDist():
+  return
+
+def normalDistRawSim():
+  return
+
+def normalDists():
+  return
+
+if __name__ == "__main__":
+  geometricDists([0.25,0.5,0.7], 20, 100000, True)
