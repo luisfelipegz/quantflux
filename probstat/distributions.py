@@ -62,6 +62,16 @@ import matplotlib.pyplot as plt
     i.e., maximum entropy probability distribution for a random variable X under no constraints.
 
   Normal distribution:
+
+    Continuous probability distribution for a real-valued random variable. Often used to represent
+     random variables whose distributions are not known.
+    
+    Their importance is partially due to the central limit theorem. It states that the average of
+     many statistically independent samples of a random variable with finite mean and variance is
+     itself a random variable whose distribution converges to a normal distribution as the number
+     of samples increases.
+
+    i.e. physical quantities that are expected to be the sum of many independent processes
     
 """
 
@@ -757,8 +767,8 @@ def uniformDists(ais: float, bes: float, trials: int, plot: bool)->Tuple[list,li
   '''
   Uniform distribution of a random variable.
   Arguments:
-    ais      : lower limits (i.e., 0)
-    bes      : upper limits (i.e., 1)
+    ais     : lower limits (i.e., 0)
+    bes     : upper limits (i.e., 1)
     trials  : Number of trials to simulate (i.e. 10k)
     plot    : option to plot
   Returns:
@@ -830,11 +840,158 @@ def uniformDists(ais: float, bes: float, trials: int, plot: bool)->Tuple[list,li
   # Return stats
   return means, variances, skewnesses
 
-def normalDist():
-  return
+def normalDist(mu: float, sigma: float, trials: int, plot: bool)->Tuple[float,float,float]:
+  '''
+  Normal distribution of a random variable
+  Arguments:
+    mu      : mean of distribution
+    sigma   : variance of distribution
+    trials  : number of simulations (i.e., 10k)
+    plot    : option to plot
+  Returns:
+    meanSim : simulated mean
+    varSim  : simulated variance
+    skSim   : simulated skewness
+  '''
+  # ----- Theory -----
+  # Expected value
+  meanTh = mu
+  # Variance
+  varTh = sigma**2
+  # Skewness
+  skTh = 0
+  # Probabilities
+  #  Success probability of drawing x
+  #  f(x) = 1/sqrt(2*pi*sigma^2) e^(-(x-mu)^2/(2*sigma^2))
+  width = sigma/5.
+  points = np.arange(mu-5*sigma,mu+5*sigma+width,width)
+  probsTh = [1/np.sqrt(2*np.pi*sigma**2)*np.exp(-((x-mu)**2)/(2*sigma**2)) for x in points[:-1]]
+  cumProbsTh = np.cumsum(probsTh)*width
+  # ----- Simulation -----
+  # Samples
+  samples = np.random.normal(loc=mu, scale=sigma, size=trials)
+  # Stats
+  meanSim = np.mean(samples)
+  varSim = np.std(samples)**2
+  skSim = skew(samples,bias=False)
+  # ----- Comparison -----
+  print(f"Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+  print(f"Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+  print(f"Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+  # ----- Plot -----
+  if plot:
+    # PMF
+    plt.figure(figsize=(8,6))
+    plt.xlim(mu-5*sigma,mu+5*sigma)
+    plt.title(f"Normal Distribution PMF (mu={mu},std={sigma})")
+    plt.hist(samples, bins=points, density=True, histtype="step", label=f"Simulation")
+    plt.plot(points[:-1], probsTh, marker=".", linestyle="None", label=f"Theory")
+    plt.xlabel("x")
+    plt.ylabel("P(X=x)")
+    plt.legend(frameon=False)
+    plt.savefig("normalDistPMF.pdf")
+    # CMF
+    plt.figure(figsize=(8,6))
+    plt.xlim(mu-5*sigma,mu+5*sigma)
+    plt.title(f"Normal Distribution CDF (mu={mu},std={sigma})")
+    plt.hist(samples, bins=points, density=True, cumulative=True, histtype="step", label=f"Simulation")
+    plt.plot(points[:-1], cumProbsTh, marker=".", linestyle="None", label=f"Theory")
+    plt.xlabel("x")
+    plt.ylabel("Cumulative Sum")
+    plt.legend(frameon=False)
+    plt.savefig("normalDistCDF.pdf")
+  return meanSim, varSim, skSim
 
-def normalDistRawSim():
-  return
+def normalDistRawSim(mu: float, sigma: float, trials: int, plot: bool)->np.ndarray:
+  '''
+  Normal distribution of a random variable
+  Arguments:
+    mu      : mean of distribution
+    sigma   : variance of distribution
+    trials  : number of simulations (i.e., 10k)
+    plot    : option to plot
+  Returns:
+    samples : numpy array with all the trials from sampling the normal distribution
+  '''
+  # ----- Simulation -----
+  # Samples
+  samples = np.random.normal(loc=mu, scale=sigma, size=trials)
+  return samples
 
-def normalDists():
-  return
+def normalDists(mus: list, sigmas: list, trials: int, plot: bool)->Tuple[list,list,list]:
+  '''
+  Normal distribution of a random variable
+  Arguments:
+    mus     : list of means of distributions
+    sigmas  : list of stds of distributions
+    trials  : number of simulations (i.e., 10k)
+    plot    : option to plot
+  Returns:
+    samples : numpy array with all the trials from sampling the normal distribution
+  '''
+  # Start plot
+  if plot:
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16,6))
+    axes[0].set_title("Normal Distributions PMF")
+    axes[0].set_xlim(min(mus)-5*max(sigmas), min(mus)+5*max(sigmas))
+    axes[0].set_xlabel("k")
+    axes[0].set_ylabel("P(k)")
+    axes[1].set_title("Normal Distributions CDF")
+    axes[1].set_xlim(min(mus)-5*max(sigmas), min(mus)+5*max(sigmas))
+    axes[1].set_xlabel("k")
+    axes[1].set_ylabel("Cumulative Sum")
+  # Loop through various draw scenarios
+  means = []
+  variances = []
+  skewnesses = []
+  scenarios = zip(mus,sigmas)
+  colorCounter = 0
+  for mu,sigma in scenarios:
+    colorCounter += 1
+    print(f"Scenario: mu={mu}, std={sigma}")
+    # ----- Theory -----
+    # Expected value
+    meanTh = mu
+    # Variance
+    varTh = sigma**2
+    # Skewness
+    skTh = 0
+    # Probabilities
+    #  Success probability of drawing x
+    #  f(x) = 1/sqrt(2*pi*sigma^2) e^(-(x-mu)^2/(2*sigma^2))
+    width = sigma/5.
+    points = np.arange(mu-5*sigma,mu+5*sigma+width,width)
+    probsTh = [1/np.sqrt(2*np.pi*sigma**2)*np.exp(-((x-mu)**2)/(2*sigma**2)) for x in points[:-1]]
+    cumProbsTh = np.cumsum(probsTh)*width
+    # ----- Simulation -----
+    # Samples
+    samples = np.random.normal(loc=mu, scale=sigma, size=trials)
+    # Stats
+    meanSim = np.mean(samples)
+    varSim = np.std(samples)**2
+    skSim = skew(samples,bias=False)
+    means.append(meanSim)
+    variances.append(varSim)
+    skewnesses.append(skSim)
+    # ----- Comparison -----
+    print(f"Simulated mean is {meanSim:.5f} (expected {meanTh:.5f})")
+    print(f"Simulated variance is {varSim:.5f} (expected {varTh:.5f})")
+    print(f"Simulated skewness is {skSim:.5f} (expected {skTh:.5f})")
+    # ----- Plot -----
+    if plot:
+      # PMF
+      axes[0].hist(samples, bins=points, density=True, histtype="step", label=f"Simulation (mu={mu},std={sigma})")
+      axes[0].plot(points[:-1], probsTh, marker=".", linestyle="None", label=f"Theory (mu={mu},std={sigma})")
+      # CMF
+      axes[1].hist(samples, bins=points, density=True, cumulative=True, histtype="step", label=f"Simulation (mu={mu},std={sigma})")
+      axes[1].plot(points[:-1], cumProbsTh, marker=".", linestyle="None", label=f"Theory (mu={mu},std={sigma})")
+  # End plot
+  if plot:
+    axes[0].legend(frameon=False)
+    axes[1].legend(frameon=False)
+    plt.savefig("normalDists.pdf")
+  # Return stats
+  return means, variances, skewnesses
+
+if __name__ == "__main__":
+  normalDists([2,3,4],[0.25,0.5,0.75],100000,True)
