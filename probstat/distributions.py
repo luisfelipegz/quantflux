@@ -992,6 +992,3 @@ def normalDists(mus: list, sigmas: list, trials: int, plot: bool)->Tuple[list,li
     plt.savefig("normalDists.pdf")
   # Return stats
   return means, variances, skewnesses
-
-if __name__ == "__main__":
-  normalDists([2,3,4],[0.25,0.5,0.75],100000,True)

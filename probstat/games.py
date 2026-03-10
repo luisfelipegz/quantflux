@@ -63,8 +63,3 @@ def multipleCraps(games: int)->float:
   print(f"Percentge of wins in {games} games of craps: {winRate*100:.2f}% (expected: {winRateExp*100:.2f}%)")
   # Return winning rate
   return winRate
-  
-  
-
-if __name__=="__main__":
-  multipleCraps(100000)

@@ -31,4 +31,3 @@ def twoDiceRollSum(nRolls: int, nExp: int)->np.ndarray:
   '''
   simulatedRolls = np.sum(np.random.randint(low=1, high=7, size=(nExp,nRolls,2)),axis=2)
   return simulatedRolls
-
