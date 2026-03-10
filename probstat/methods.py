@@ -37,3 +37,47 @@ def centralLimitTheorem(simEvents: np.ndarray, meanExp: float, plot: bool)->None
   print(f'Percentage of simulated means within two std of true mean: {np.mean(withinTwoStd)*100:.2f}%')
   print(f'Percentage of simulated means within three std of true mean: {np.mean(withinThreeStd)*100:.2f}%')
   return
+
+def symmetricRandomWalk(steps: int, plot: bool)->np.ndarray:
+  '''
+  Random walk with 1/2 probability of going up by one or down by one
+  Arguments:
+    steps     : Number of steps to simulate
+    plot      : Plotting option
+  Returns:
+    walk      : Simulated random walk
+  '''
+  choices = np.random.choice([1,-1],p=[1/2,1/2],size=steps)
+  walk = np.cumsum(choices)
+  walk = np.insert(walk,0,0)
+  if plot:
+    plt.figure(figsize=(8,6))
+    plt.title("Symmetric Random Walk")
+    plt.plot(walk)
+    plt.xlabel("Step")
+    plt.ylabel("Position")
+    plt.savefig("symmetricRandomWalk.pdf")
+  return walk
+
+def randomWalk(stepSizes: list[float], stepProbs: list[float], steps: int)->np.ndarray:
+  '''
+  Random walk with user defined step sizes and probabilities
+  Arguments:
+    stepSizes : List of size of possible steps
+    stepProbs : List of probabilities for each possible step size
+    steps     : Number of steps to simulate
+    plot      : Plotting option
+  Returns:
+    walk      : Simulated random walk
+  '''
+  choices = np.random.choice(stepSizes,p=stepProbs,size=steps)
+  walk = np.cumsum(choices)
+  walk = np.insert(walk,0,0)
+  if plot:
+    plt.figure(figsize=(8,6))
+    plt.title("Random Walk")
+    plt.plot(walk)
+    plt.xlabel("Step")
+    plt.ylabel("Position")
+    plt.savefig("randomWalk.pdf")
+  return walk
