@@ -3,14 +3,17 @@ import numpy as np
 """
 
   fairDiceRollEV:
-    Simulate the EV of rolling a six-sided fair dice
+    Simulate the EV of rolling a six-sided fair dice.
 
-  uniformDrawsUntiOne:
+  uniformDrawsUntilOne:
     Single simulation of the number of draws from the Unif(0,1) to exceed 1.
   
-  uniformDrawsUntiOne:
+  uniformDrawsUntilOne:
     Average number of draws from the Unif(0,1) to exceed 1.
 
+  fairDiceRollProb:
+    Simulate the probability of a specific single dice roll output.
+    
 """
 
 def fairDiceRollEV(size: int)->int:
@@ -69,3 +72,25 @@ def uniformDrawsUntilOneEV(size: int)->float:
   meanTh = np.exp(1)
   print(f'Simulated average number of draws is {mean} (expected {meanTh})')
   return mean
+
+def fairDiceRollProb(successes: list[int])->float:
+  '''
+  Computes the probability of obtaining successes in fair six-sided dice roll.
+  Arguments:
+    successes   : list of positive outcomes
+  Returns:
+    probability : simulated probability of successes
+  '''
+  # Ensure successes are unique
+  successes = list(set(successes))
+  # Simulate 1000 dice rolls
+  rolls = np.random.randint(low=1,high=7,size=1000)
+  probSim = np.sum(np.isin(rolls,successes))/len(rolls)
+  # Theory
+  #  Six possible outcomes
+  probTh = len(successes)/6
+  # Return
+  print(f'Simulated success probability is {probSim:.2f} (expected {probTh:.2f})')
+  return probSim
+
+#if __name__=="__main__":

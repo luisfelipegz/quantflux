@@ -20,8 +20,8 @@ def constructPortfolio(tickers: list[str], weights: np.ndarray, plot: bool)->np.
   Example:
     tickers = ['KLAC','MU','ASML','NEM','TSM','LRCX','ADI','AMAT']
     equity = [1078.61,172.50,161.43,111.87,119.60,123.74,109.11,149.77]
-    increase = [0,100,100,300,100,100,100,100]
-  weights = (np.array(equity)+np.array(increase))/(sum(equity)+sum(increase))
+    increase = [0,300,300,500,300,300,300,300]
+    weights = (np.array(equity)+np.array(increase))/(sum(equity)+sum(increase))
     constructPortfolio(tickers,weights,True)
   '''
   # Download stock data after COVID
