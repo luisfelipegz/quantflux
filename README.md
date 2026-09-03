@@ -372,8 +372,8 @@ Additional packages may be introduced as the project develops.
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/quant-finance-ml.git
-cd quant-finance-ml
+git clone https://github.com/luisfelipegz/quantflux.git
+cd quantflux
 ```
 
 Create a virtual environment:
