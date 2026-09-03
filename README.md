@@ -395,12 +395,6 @@ Activate it on macOS or Linux:
 source .venv/bin/activate
 ```
 
-Activate it on Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
 Install dependencies:
 
 ```bash
