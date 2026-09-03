@@ -348,7 +348,7 @@ Where appropriate, statistical metrics may be supplemented with quantities such 
 - Risk-adjusted performance
 
 Predictive performance alone will not automatically be interpreted as evidence of a profitable trading strategy.
-
+-->
 ---
 
 ## Technologies
@@ -407,6 +407,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+<!--
 ---
 
 ## Current Development Plan
