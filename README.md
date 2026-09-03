@@ -24,6 +24,7 @@ Rather than treating prediction accuracy as the final result, the project emphas
 
 ### TENTATIVELY
 
+```text
 quantflux/
 │
 ├── data/
@@ -56,13 +57,16 @@ quantflux/
 │
 ├── requirements.txt
 └── README.md
+```
 
 ### Currently
 
+```text
 quantflux/
 │
 ├── requirements.txt
 └── README.md
+```
 
 The exact structure will evolve as the project grows.
 ---
@@ -96,9 +100,7 @@ Initial models may include:
 
 ### Geometric Brownian Motion
 
-\[
-dS_t = \mu S_t dt + \sigma S_t dW_t
-\]
+$$ dS_t = \mu S_t dt + \sigma S_t dW_t $$
 
 GBM provides a useful baseline for studying the consequences of assuming constant drift, constant volatility, and normally distributed log returns.
 
