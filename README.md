@@ -64,6 +64,7 @@ quantflux/
 ```text
 quantflux/
 │
+├── .gitignore
 ├── requirements.txt
 └── README.md
 ```
@@ -322,7 +323,7 @@ Depending on the problem, model performance may be evaluated with:
 - Mean Absolute Error
 - Mean Squared Error
 - Root Mean Squared Error
-- \(R^2\)
+- $R^2$
 - Relative pricing error
 
 ### Classification
@@ -363,6 +364,8 @@ scikit-learn
 statsmodels
 PyTorch
 yfinance
+tensorflow
+keras
 ```
 
 Additional packages may be introduced as the project develops.
