@@ -1,13 +1,12 @@
 # QuantFlux
 
-
-<!-- 
 This respository is a quantitative research tool focused on understanding the relationship between stock-price dynamics, option values, machine-learning predictions and statistical inference.
 
 The goal is not only to build models that generate accurate predictions, but also to understand why they work, when they fail, and whether their outputs are statistically meaningful.
 
 In this repository we combine historical stock-price analysis, simulated stock-price paths, option pricing and option sensitivities, machine-learning models for financial prediction, statistical hypothesis testing and uncertainty estimation, model interpretation and comparison, and visualization of financial and statistical results.
 
+<!-- 
 ## Project Goals
 
 This repository explores several connected questions:
@@ -22,8 +21,11 @@ This repository explores several connected questions:
 
 Rather than treating prediction accuracy as the final result, the project emphasizes statistical interpretation, robustness, and model behavior.
 
+-->
+
 ## Repository Structure 
 
+<!--
 ### TENTATIVELY
 
 ```text
@@ -60,8 +62,7 @@ quantflux/
 ├── requirements.txt
 └── README.md
 ```
-
-### Currently
+-->
 
 ```text
 quantflux/
@@ -73,6 +74,8 @@ quantflux/
 
 The exact structure will evolve as the project grows.
 ---
+
+<!--
 
 ## 1. Market Data and Exploratory Analysis
 
@@ -365,9 +368,9 @@ Matplotlib
 scikit-learn
 statsmodels
 PyTorch
-yfinance
 tensorflow
 keras
+yfinance
 ```
 
 Additional packages may be introduced as the project develops.
