@@ -73,6 +73,7 @@ quantflux/
 ```
 
 The exact structure will evolve as the project grows.
+
 ---
 
 <!--
