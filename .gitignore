@@ -1,5 +1,27 @@
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Jupyter temporary files
+.ipynb_checkpoints/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables and credentials
+.env
+.env.*
+!.env.example
+
+# VS Code local settings
+.vscode/
+
+# Automated testing files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# macOS system files
 .DS_Store
-*/.DS_Store
-*/__pycache__
-old/*
-.venv/*
