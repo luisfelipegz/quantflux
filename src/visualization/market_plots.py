@@ -448,3 +448,57 @@ def plot_return_qq(data, tickers=None, return_field="Log Return", show=True):
         plt.show()
 
     return fig, axes
+
+def plot_correlation_heatmap(correlation, show=True):
+    """
+    Plot a heatmap of a correlation matrix with values displayed inside each cell.
+
+    Parameters
+    ----------
+    correlation : pandas.DataFrame
+        Correlation matrix with tickers as rows and columns.
+
+    show : bool
+        Whether to display the figure. Default is True.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The generated figure.
+    
+    ax : matplotlib.axes.Axes
+        The axes containing the heatmap
+    """
+
+    tickers = list(correlation.index)
+
+    fig, ax = plt.subplots(figsize=(8,6))
+
+    # Heatmap
+    image = ax.imshow(correlation.values, cmap="RdBu_r", vmin=-1, vmax=1)
+
+    # Axis ticks and labels
+    ax.set_xticks(range(len(tickers)))
+    ax.set_yticks(range(len(tickers)))
+    ax.set_xticklabels(tickers)
+    ax.set_yticklabels(tickers)
+
+    # Title
+    ax.set_title("Correltaion Matrix")
+
+    # Add correlation values inside each box
+    for i in range(len(tickers)):
+        for j in range(len(tickers)):
+            value = correlation.iloc[i, j]
+            ax.text(j, i, f"{value:.2f}", ha="center", va="center")
+
+    # Colorbar
+    fig.colorbar(image, ax=ax, label="Correlation")
+
+    fig.tight_layout()
+
+    # Display plot
+    if show:
+        plt.show()
+
+    return fig, ax

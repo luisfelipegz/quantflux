@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 import pandas as pd
 
-from src.visualization.market_plots import plot_prices, plot_cumulative_returns, plot_rolling_volatility, plot_drawdowns, plot_return_distributions, plot_return_boxplots, plot_return_qq
+from src.visualization.market_plots import plot_prices, plot_cumulative_returns, plot_rolling_volatility, plot_drawdowns, plot_return_distributions, plot_return_boxplots, plot_return_qq, plot_correlation_heatmap
 
 class TestMarketPlots(unittest.TestCase):
 
@@ -221,6 +221,37 @@ class TestMarketPlots(unittest.TestCase):
                 # Verify percentage formatting
                 self.assertIsInstance(ax.xaxis.get_major_formatter(), PercentFormatter)
                 self.assertIsInstance(ax.yaxis.get_major_formatter(), PercentFormatter)
+
+        finally:
+            plt.close(fig)
+
+    def test_plot_correlation_heatmap(self):
+        # Synthetic correlation matrix
+        correlation = pd.DataFrame([[1.0,-0.4], [-0.4,1.0]], index=["AAPL","MSFT"], columns=["AAPL","MSFT"])
+
+        # Generate heatmap without displaying it
+        fig, ax = plot_correlation_heatmap(correlation, show=False)
+
+        try:
+            # Retrieve the heatmap image
+            image = ax.images[0]
+
+            # Verify the numerical correlation matrix
+            self.assertEqual(image.get_array().tolist(), correlation.values.tolist())
+
+            # Verify ticker labels
+            self.assertEqual([tick.get_text() for tick in ax.get_xticklabels()],["AAPL", "MSFT"])
+            self.assertEqual([tick.get_text() for tick in ax.get_yticklabels()],["AAPL", "MSFT"])
+
+            # Verify numerical annotations
+            annotations = [text.get_text() for text in ax.texts]
+            self.assertEqual(annotations,["1.00", "-0.40", "-0.40", "1.00"])
+
+            # Verify diverging colormap
+            self.assertEqual(image.get_cmap().name, "RdBu_r")
+
+            # Verify fixed correlation scale
+            self.assertEqual(image.get_clim(), (-1, 1))
 
         finally:
             plt.close(fig)
