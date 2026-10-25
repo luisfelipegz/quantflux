@@ -12,7 +12,7 @@ Historical stock market data is retrieved using `yfinance`, supporting multiple 
 
 The data is organized using Pandas DataFrames with financial variables on the first column level and ticker symbols on the second.
 
-Historical financial calculations currently use adjusted closing prices (`Adj Close').
+Historical financial calculations currently use adjusted closing prices (`Adj Close`).
 
 ### Financial Calculations
 
@@ -40,38 +40,45 @@ Historical market datasets are validated before financial calculations. Current 
 
 ### Statistical Analysis
 
-The project includes descriptive statistical analysis of historical financial returns.
+#### Descriptive Return Statistics
 
-The following statistics are supported:
+Quantflux supports descriptive analysis of historical
+financial returns, including:
 
-- Number of valid observations
-- Sample mean
-- Sample standard deviation
-- Sample skewness
-- Sample excess kurtosis
+- Observation count
+- Sample mean and standard deviation
+- Skewness and excess kurtosis
 
-Statistical calculations support multiple financial instruments and can be applied to either simple or logarithmic returns.
+#### Covariance and Correlation Analysis
+
+Quantflux also supports analysis of relationships
+between financial assets, including:
+
+- Sample covariance matrices
+- Pearson correlation matrices
+- Simple and logarithmic returns
 
 ### Financial Visualization
 
 Reusable Matplotlib functions support the following visualizations:
 
-#### Market performance 
+#### Market Performance
 
 - Historical adjusted closing prices
 - Cumulative returns
 - Annualized rolling volatility
 - Historical drawdowns
 
-#### Return distribution analysis
+#### Return Distribution Analysis
 
 - Return histograms with fitted Gaussian benchmarks
 - Comparative box plots
 - Normal Q-Q plots
 
-The distribution visualizations help examine asymmetry, extreme observations, and departures from Gaussian assumptions.
+#### Correlation Analysis
 
-The plotting functions support flexible ticker selection and optional figure display.
+- Correlation heatmaps with numerical annotations
+- Diverging color scale fixed between -1 and 1
 
 ### Testing and Numerical Verification
 
@@ -84,6 +91,9 @@ Automated tests cover:
 - Market data validation
 - Descriptive statistical calculations
 - Financial visualization functions
+- Independent mathematical verification of covariance calculations
+- Independent mathematical verification of Pearson correlations
+- Validation of correlation heatmaps, including matrix values, ticker labels, numerical annotations, and color scaling
 
 Statistical calculations are verified against independent implementations of their mathematical definitions using synthetic datasets.
 
@@ -91,7 +101,7 @@ Visualization tests verify plotted values, ticker selection, figure structure, a
 
 ### Interactive Financial Analysis
 
-The Jupyter notebook `01\_market\_exploration.ipynb' demonstrates the use of Quantflux modules with historical market data.
+The Jupyter notebook `01_market_exploration.ipynb` demonstrates the use of Quantflux modules with historical market data.
 
 The notebook includes:
 
@@ -101,6 +111,8 @@ The notebook includes:
 - Market performance and volatility visualizations
 - Descriptive return statistics
 - Return distribution analysis using histograms, box plots, and Q-Q plots
+- Covariance and correlation matrices
+- Correlation heatmap with numerical annotations
 
 ## Project Structure
 
@@ -149,9 +161,9 @@ python -m pip install -r requirements.txt
 
 ### 3. Open the Project
 
-Open the Quantflux repository in Visual Studio Code and select the Python interpreter located inside `.venv'.
+Open the Quantflux repository in Visual Studio Code and select the Python interpreter located inside `.venv`.
 
-Open the `notebooks' directory in JupyterLab and ensure the notebook uses the same Python environment.
+Open the `notebooks` directory in JupyterLab and ensure the notebook uses the same Python environment.
 
 ### 4. Run the Financial Analysis
 
@@ -175,7 +187,6 @@ The test suite verifies the implemented calculations, data validation, and visua
 
 Planned extensions include:
 
-- Covariance and correlation analysis
 - Statistical hypothesis testing and distribution fitting
 - Stochastic stock-price simulations
 - Monte Carlo methods
