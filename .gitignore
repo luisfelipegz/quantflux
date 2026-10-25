@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 
 # Jupyter temporary files
+.jupyter/
+.virtual_documents/
 .ipynb_checkpoints/
 
 # Python virtual environments
