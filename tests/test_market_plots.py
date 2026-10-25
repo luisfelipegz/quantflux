@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 import pandas as pd
 
-from src.visualization.market_plots import plot_prices, plot_cumulative_returns, plot_rolling_volatility, plot_drawdowns
+from src.visualization.market_plots import plot_prices, plot_cumulative_returns, plot_rolling_volatility, plot_drawdowns, plot_return_distributions, plot_return_boxplots, plot_return_qq
 
 class TestMarketPlots(unittest.TestCase):
 
@@ -118,6 +118,109 @@ class TestMarketPlots(unittest.TestCase):
 
             # Verify percentage formatting
             self.assertIsInstance(ax.yaxis.get_major_formatter(),PercentFormatter)
+
+        finally:
+            plt.close(fig)
+
+    def test_plot_return_distributions(self):
+        
+        # Create synthetic daily logarithmic returns
+        data = self.data.copy()
+        data[("Log Return", "AAPL")] = [-0.02,0.00,0.03]
+        data[("Log Return", "MSFT")] = [-0.01,0.01,0.02]
+
+        # Generate histograms without displaying them
+        fig, axes = plot_return_distributions(data, bins=5, show=False)
+
+        try:
+            # Verify one subplot per ticker
+            self.assertEqual(len(axes),2)
+
+            for ax in axes:
+                # Verify histogram bars exist
+                self.assertGreater(len(ax.patches),0)
+
+                # Verify a Gaussian benchmark was plotted
+                self.assertEqual(len(ax.lines),1)
+                self.assertEqual(ax.lines[0].get_label(),"Gaussian Benchmark")
+
+                # Verify histogram density normalization
+                area = sum(bar.get_height()*bar.get_width() for bar in ax.patches)
+                self.assertAlmostEqual(area, 1.0)
+
+                # Verify percentage formatting of returns
+                self.assertIsInstance(ax.xaxis.get_major_formatter(),PercentFormatter)
+
+        finally:
+            plt.close(fig)
+
+    def test_plot_return_boxplots(self):
+        # Create synthetic daily log returns
+        data = self.data.copy()
+        aapl = [-0.03,0.01,0.04]
+        msft = [-0.02,0.00,0.03]
+        data[("Log Return", "AAPL")] = aapl
+        data[("Log Return", "MSFT")] = msft
+
+        # Generate box plots without displaying them
+        fig, ax = plot_return_boxplots(data,show=False)
+
+        try:
+            # Verify ticker labels
+            labels = [tick.get_text() for tick in ax.get_xticklabels()]
+            self.assertEqual(labels, ["AAPL", "MSFT"])
+
+            # Verify mean markers and their numerical values
+            mean_markers = [line for line in ax.lines if line.get_marker()=="^"]
+            self.assertEqual(len(mean_markers),2)
+            self.assertAlmostEqual(mean_markers[0].get_ydata()[0], sum(aapl)/len(aapl))
+            self.assertAlmostEqual(mean_markers[1].get_ydata()[0], sum(msft)/len(msft))
+
+            # Verify percentage formatting
+            self.assertIsInstance(ax.yaxis.get_major_formatter(),PercentFormatter)
+
+        finally:
+            plt.close(fig)
+
+    def test_plot_return_qq(self):
+
+        # Create synthetic daily logarithmic returns
+        data = self.data.copy()
+        raw_returns = {
+            "AAPL": [-0.02, 0.00, 0.03],
+            "MSFT": [-0.01, 0.01, 0.02]
+        }
+        for ticker, values in raw_returns.items():
+            data[("Log Return", ticker)] = values
+
+        # Generate Q-Q plots without displaying them
+        fig, axes = plot_return_qq(data, show=False)
+
+        try:
+            # Verify one subplot per ticker
+            self.assertEqual(len(axes), 2)
+
+            for ax, (ticker, values) in zip(axes, raw_returns.items()):
+                # Retrieve the plotted Q-Q coordinates
+                points = ax.collections[0].get_offsets()
+
+                # One point per historical observation
+                self.assertEqual(points.shape, (3, 2))
+
+                # Verify observed quantiles are sorted returns
+                for observed, expected in zip(points[:, 1], sorted(values)):
+                    self.assertAlmostEqual(observed, expected)
+
+                # Gaussian median equals the sample mean
+                self.assertAlmostEqual(points[1, 0], sum(values) / len(values))
+
+                # Verify the reference line represents y = x
+                reference = ax.lines[0]
+                self.assertEqual(list(reference.get_xdata()), list(reference.get_ydata()))
+
+                # Verify percentage formatting
+                self.assertIsInstance(ax.xaxis.get_major_formatter(), PercentFormatter)
+                self.assertIsInstance(ax.yaxis.get_major_formatter(), PercentFormatter)
 
         finally:
             plt.close(fig)
