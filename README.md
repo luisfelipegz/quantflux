@@ -114,6 +114,15 @@ The notebook includes:
 - Covariance and correlation matrices
 - Correlation heatmap with numerical annotations
 
+The Jupyter notebook `02_return_distributions.ipynb` investigates the empirical statistical properties of daily logarithmic returns for AAPL, MSFT, and SPY from 2020 through 2025.
+
+The notebook includes:
+
+- Descriptive statistics, including mean, standard deviation, skewness, and excess kurtosis
+- Empiral return distributions with fitted Gaussian benchmarks
+- Normal Q-Q plots for examining deviations from Gaussian behavior
+- Interpretation of distribution asymmetry, tail behavior, and limitations of the normality assumption
+
 ## Project Structure
 
 ```text
@@ -132,12 +141,13 @@ quantflux/
 │   ├── test_market_plots.py
 │   └── test_return_statistics.py
 ├── notebooks/
-│   └── 01_market_exploration.ipynb
-├── requirements.txt
-├── .gitignore
-└── README.md
-```
-
+│   └── 01_market_exploration.ipynb    
+│   └── 02_return_distributions.ipynb    
+├── requirements.txt                   
+├── .gitignore                         
+└── README.md                          
+```                                    
+                                       
 ## Getting Started
 
 ### 1. Create a Python Environment
@@ -167,12 +177,12 @@ Open the `notebooks` directory in JupyterLab and ensure the notebook uses the sa
 
 ### 4. Run the Financial Analysis
 
-Open:
-```
-notebooks/01_market_exploration.ipynb
-```
+The `notebooks` directory contains independent research notebooks focused on different aspects of quantitative financial analysis.
 
-Execute the notebook cells to retrieve historical data, calculate financial and statistical variables, and generate visualizations.
+Available notebooks:
+
+- `01_market_exploration.ipynb`: Historical market data, financial calculations, performance visualization, and exploratory statistical analysis.
+- `02_return_distributions.ipynb`: Empirical return distributions, descriptive statistics, Gaussian benchmarks, and Q-Q analysis.
 
 ### 5. Run Automated Tests
 
